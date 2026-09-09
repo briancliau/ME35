@@ -35,5 +35,5 @@ for i in range(350):
         lights[0] = (0, 0, 0)
         lights[1] = (0, 0, 0)
 
-    lights.write()  # Send pixel changes to hardware on every iteration
+    lights.write() 
     time.sleep_ms(1000)
