@@ -110,12 +110,19 @@ while True:
             reply = urequests.get(WEATHER_URL)
             weather_code = reply.json()['daily']['weather_code'][0]
             weather_state = 0;
-            if (weather_code <= 1):
+            if (weather_code <= 2):
                 weather_state = 0
                 set_rgb(128, 60, 0)
             elif (weather_code <= 48): 
-                weather_state = 1
-                set_rgb(60, 70, 80)
+                if (city == 1):
+                    weather_state = 0
+                    set_rgb(128, 60, 0)
+                elif (city == 4):
+                    weather_state = 2
+                    set_rgb(0, 25, 128)
+                else:
+                    weather_state = 1
+                    set_rgb(60, 70, 80)
             else:
                 weather_state = 2
                 set_rgb(0, 25, 128)
