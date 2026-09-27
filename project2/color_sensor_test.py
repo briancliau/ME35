@@ -65,15 +65,17 @@ def k_nearest_neighbor(x,y,z, k =1):
 data = []
 color = ""
 index = 0
+i = 0
+sorted_flag = False
 
 while True:
     red, green, blue, white = sensor.read_rgbw()
     if(STATE_TRAIN and pressed_flag):
         print(red, green, blue, white)
         index = index+1
-        if 1 <= index <= 6:
+        if 1 <= index <= 11:
             color = "red"
-        elif index >7 and index<13:
+        elif index >12 and index<22:
             color = "blue"
         else:
             color = "no clue"
@@ -82,8 +84,26 @@ while True:
         pressed_flag = False
            
     if(STATE_PLAY):
-        what_class = k_nearest_neighbor(red, green, blue,3)
-        print(what_class)
-        time.sleep(0.1)
+        i = 0
+        sorted_flag = False
+        while i < 10 and sorted_flag == False:
+            what_class1 = k_nearest_neighbor(red, green, blue,3)
+            what_class2 = k_nearest_neighbor(red, green, blue,3)
+            what_class3 = k_nearest_neighbor(red, green, blue,3)
+            what_class1 = k_nearest_neighbor(red, green, blue,3)
+            what_class2 = k_nearest_neighbor(red, green, blue,3)
+            what_class3 = k_nearest_neighbor(red, green, blue,3)
+            what_class1 = k_nearest_neighbor(red, green, blue,3)
+            what_class2 = k_nearest_neighbor(red, green, blue,3)
+            what_class3 = k_nearest_neighbor(red, green, blue,3)
+            print(what_class1)
+            print(what_class2)
+            print(what_class3)
+            if (what_class1 == what_class2 == what_class3):
+                sorted_flag = True
+            else:
+                sorted_flag = False
+            i = i + 1
+            time.sleep(0.1)
         STATE_PLAY = False
     time.sleep(0.1)

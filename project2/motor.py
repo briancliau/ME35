@@ -13,11 +13,9 @@ def put_in_middle():
     motor2.duty_u16(DUTY_MID)
 
 def put_in_1():
+    motor2.duty_u16(DUTY_150)    
     motor1.duty_u16(DUTY_30)
-    motor2.duty_u16(DUTY_150)
     
 def put_in_2():
     motor1.duty_u16(DUTY_150)
     motor2.duty_u16(DUTY_30)
-    
-    

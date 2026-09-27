@@ -84,21 +84,32 @@ while True:
         pressed_flag = False
            
     if(STATE_PLAY):
-        what_class = k_nearest_neighbor(red, green, blue,3)
-        print(what_class)
-        while what_class == "no clue":
-            what_class = k_nearest_neighbor(red, green, blue,3)
+        i = 0
+        sorted_flag = False
+        while i < 10 and sorted_flag == False:
+            what_class1 = k_nearest_neighbor(red, green, blue,3)
+            what_class2 = k_nearest_neighbor(red, green, blue,3)
+            what_class3 = k_nearest_neighbor(red, green, blue,3)
+            print(what_class1)
+            print(what_class2)
+            print(what_class3)
+            if (what_class1 == what_class2 == what_class3):
+                sorted_flag = True
+            else:
+                sorted_flag = False
+            i = i + 1
+        print(what_class1)
         
-        if what_class == "red":
+        if what_class1 == "red":
             motor.put_in_1()
-            sevenseg.add_left()
-        elif what_class == "blue":
+            sevenseg.add_lego()
+        elif what_class1 == "blue":
             motor.put_in_2()
-            sevenseg.add_right()
+            sevenseg.add_lego()
         else:
-            motor_put_in_middle()
-        
+            motor_put_in_middle()     
         time.sleep(1.0)
         STATE_PLAY = False
         motor_put_in_middle()
+        
     time.sleep(0.1)
