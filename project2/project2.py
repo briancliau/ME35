@@ -1,115 +1,152 @@
 from machine import Pin, PWM
-from machine import Pin, SoftI2C
 import time
-import math
 from time import ticks_ms, ticks_diff
-import sevenseg
-import motor
+import network
+import urequests
+import time
+import wifi
+import urequests
 
-# Cannot use 34, 35 (buttons), 21, 22 (I2C), 4, 5 (Servo Motors)
-
-button_Play = Pin(34, Pin.IN, Pin.PULL_UP)
-button_Train = Pin(35, Pin.IN, Pin.PULL_UP)
-
-i2c = SoftI2C(scl = Pin(22), sda = Pin(21))
-
-print(i2c.scan())
+button1 = Pin(23, Pin.IN, Pin.PULL_UP) 
+button2 = Pin(22, Pin.IN, Pin.PULL_UP)
+pwm1 = PWM(Pin(4), freq = 50)
+pwm2 = PWM(Pin(5), freq = 50)
+red = PWM(Pin(18), freq = 1000)
+green = PWM(Pin(19), freq = 1000)
+blue = PWM(Pin(21), freq = 1000)
 
 DEBOUNCE_MS = 200
-last_press = 0
+last_press_1 = 0
+last_press_2 = 0
 
-pressed_flag = False
-STATE_PLAY = False
-STATE_TRAIN = True
+city = -1;
+update_needed = True;
+# city 1: Boston, city 2: London, city 3: Tokyo, city 4: Taipei, city 5: LA
 
-def playButton(p):
-    global STATE_PLAY
-    global STATE_TRAIN
-    STATE_PLAY = True
-    STATE_TRAIN = False
+def set_rgb(r, g, b):
+    red.duty_u16(int(((255-r) / 255) * 65535))
+    green.duty_u16(int(((255-g) / 255) * 65535))
+    blue.duty_u16(int(((255-b) / 255) * 65535))
 
+set_rgb(0, 0, 0)
 
-def trainButton(p):
-    global pressed_flag
-    global STATE_TRAIN
-    STATE_TRAIN = True
-    pressed_flag = True
+def weather_handler(pin):
+    global last_press_1
+    global state
+    global city
+    global update_needed
+    now = ticks_ms()
+    if ticks_diff(now, last_press_1) > DEBOUNCE_MS:
+        if (pin.value() == 0):
+            last_press_1 = now
+            state = 1
+            if (city >= 4):
+                city = 0
+            else:
+                city = city + 1
+            update_needed = True
 
-    
-button_Train.irq(trigger=Pin.IRQ_RISING, handler=trainButton)
-button_Play.irq(trigger=Pin.IRQ_RISING, handler=playButton)
+def timer_handler(pin):
+    global last_press_2
+    global state
+    now = ticks_ms()
+    global update_needed
+    if ticks_diff(now, last_press_2) > DEBOUNCE_MS:
+        if (pin.value() == 0):
+            last_press_2 = now
+            state = 0
+            set_rgb(0, 0, 0)
+            update_needed = True
 
-import veml6040
-sensor = veml6040.VEML6040(i2c)
+button1.irq(trigger=Pin.IRQ_FALLING, handler=weather_handler)
+button2.irq(trigger=Pin.IRQ_FALLING, handler=timer_handler)
 
-sensor.trigger_measurement()
-sevenseg.start()
-   
-def k_nearest_neighbor(x,y,z, k =1):
-    distances = []
-    for index, d in enumerate(data):
-        dist = math.sqrt((x-d[0])**2+(y-d[1])**2+(z-d[2])**2)
-        distances.append([dist,d[3]])
-    
-    distances.sort()
-    distances = distances[:k] #get k distances
-    classes = []
-    for dist in distances:
-        classes.append(dist[1])
-    print("k classes", classes)
-    most_number_of_closest_classes = max(set(classes), key = classes.count)
-    print("max classes ", most_number_of_closest_classes)
-    
-    return most_number_of_closest_classes
-
-
-       
-data = []
-color = ""
-index = 0
+state = 0
+set_rgb(0, 0, 0)
+wifi.connect_wifi()
+set_rgb(0, 0, 0)
+print(state)
+set_rgb(0, 0, 0)
 
 while True:
-    red, green, blue, white = sensor.read_rgbw()
-    if(STATE_TRAIN and pressed_flag):
-        print(red, green, blue, white)
-        index = index+1
-        if index <= 5:
-            color = "red"
-        elif index >5 and index<10:
-            color = "blue"
-        else:
-            color = "no clue"
-
-        data.append((red, green, blue, color))
-        pressed_flag = False
-           
-    if(STATE_PLAY):
-        i = 0
-        sorted_flag = False
-        while i < 10 and sorted_flag == False:
-            what_class1 = k_nearest_neighbor(red, green, blue,3)
-            what_class2 = k_nearest_neighbor(red, green, blue,3)
-            what_class3 = k_nearest_neighbor(red, green, blue,3)
-            print(what_class1)
-            print(what_class2)
-            print(what_class3)
-            if (what_class1 == what_class2 == what_class3):
-                sorted_flag = True
+    if update_needed:
+        if (state == 0):
+            set_rgb(0, 0, 0)
+            DATE_URL = "https://aisenseapi.com/services/v1/datetime/-0400"
+            reply = urequests.get(DATE_URL)
+            string = reply.json()['datetime']
+            hour = string[11:13]
+            hour_int = int(hour)
+            minute = string[14:16]
+            minute_int = int(minute)
+            if (hour_int > 12):
+                hour_int = hour_int - 12 
+                print(hour_int)
+                print(minute)
+                
             else:
-                sorted_flag = False
-            i = i + 1
-        print(what_class1)
-        
-        if what_class1 == "red":
-            motor.put_in_1()
-            sevenseg.add_lego()
-        elif what_class1 == "blue":
-            motor.put_in_2()
-            sevenseg.add_lego()
-        else:
-            motor_put_in_middle()     
-        time.sleep(1.0)
-        STATE_PLAY = False
-        motor_put_in_middle()
-        
-    time.sleep(0.1)
+                print(hour_int)
+                print(minute_int)
+
+            servo_h = 1638 + ((hour_int - 1)/11)*6554
+            servo_h = round(servo_h)
+            servo_m = 1638 + ((180 - (3*minute_int))/180)*6554
+            servo_m = round(servo_m)
+            print(servo_h)
+            print (servo_m)
+            pwm1.duty_u16(servo_h)
+            pwm2.duty_u16(servo_m)
+        elif (state == 1):
+            if (city == 0):
+                WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=51.5008&longitude=-0.1247&daily=weather_code&timezone=auto"
+            elif (city == 1):
+                WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=34.1341&longitude=-118.3215&daily=weather_code&timezone=auto"
+            elif (city == 2):
+                WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=42.4063&longitude=71.1193&daily=weather_code&timezone=auto"
+            elif (city == 3):
+                WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=25.0339&longitude=121.5645&daily=weather_code&timezone=auto"
+            else:
+                WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=35.6762&longitude=139.6503&daily=weather_code&timezone=auto"
+            reply = urequests.get(WEATHER_URL)
+            weather_code = reply.json()['daily']['weather_code'][0]
+            weather_state = 0;
+            if (weather_code <= 2):
+                weather_state = 0
+                set_rgb(128, 60, 0)
+            elif (weather_code <= 48): 
+                if (city == 1):
+                    weather_state = 0
+                    set_rgb(128, 60, 0)
+                elif (city == 4):
+                    weather_state = 2
+                    set_rgb(0, 25, 128)
+                else:
+                    weather_state = 1
+                    set_rgb(60, 70, 80)
+            else:
+                weather_state = 2
+                set_rgb(0, 25, 128)
+                
+            print(city, weather_state)
+            
+            if (city == 0):
+                pwm1.duty_u16(1638)
+            elif (city == 1):
+                pwm1.duty_u16(3277)
+            elif (city == 2):
+                pwm1.duty_u16(4915)
+            elif (city == 3):
+                pwm1.duty_u16(6554) 
+            else:
+                pwm1.duty_u16(8192)
+                
+            if (weather_state == 0):
+                pwm2.duty_u16(8192)
+            elif (weather_state == 1):
+                pwm2.duty_u16(4915)
+            else:
+                pwm2.duty_u16(1638)
+            
+        update_needed = False
+    time.sleep_ms(100)
+

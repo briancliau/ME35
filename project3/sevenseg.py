@@ -1,8 +1,8 @@
 from machine import Pin, Timer
 import time
 
-digit1 = Pin(15, Pin.OUT)
-digit2 = Pin(32, Pin.OUT)
+digit1 = Pin(32, Pin.OUT)
+digit2 = Pin(15, Pin.OUT)
 
 A = Pin( 2, Pin.OUT)
 B = Pin(12, Pin.OUT)
@@ -10,7 +10,7 @@ C = Pin(13, Pin.OUT)
 D = Pin(14, Pin.OUT)
 E = Pin(16, Pin.OUT)
 F = Pin(17, Pin.OUT)
-G = Pin(18, Pin.OUT)
+G = Pin(19, Pin.OUT)
 
 digit_flag = 0
 display_timer = Timer(0)
@@ -19,8 +19,7 @@ lego_count = 0
 
 def refresh_display(timer_obj):
     global digit_flag
-    global left_count
-    global right_count
+    global lego_count
     
     d1 = lego_count % 10
     d2 = lego_count // 10
@@ -40,6 +39,7 @@ def start():
     display_timer.init(period=5, mode=Timer.PERIODIC, callback=refresh_display)
         
 def add_lego():
+    global lego_count
     lego_count = lego_count + 1
     
 def display_num(x):
