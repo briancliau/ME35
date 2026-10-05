@@ -17,7 +17,7 @@ class Count(object):
         self.counter += -inc if msg.value()!=other.value() else  inc 
         
     def value(self):
-        print(self.counter)
+        # print(self.counter)
         return self.counter
     
 class Motor(Count):
@@ -28,7 +28,8 @@ class Motor(Count):
         self.stop()
         
     def pos(self):
-        print(self.enc.value())        
+        # print(self.enc.value())
+        return self.enc.value()
             
     def stop(self):
         self.M1.duty_u16(0) 
@@ -49,9 +50,6 @@ class Motor(Count):
 #If you want to set up a motor with encoder
 #Motor1 = Motor(14,27, 32,39) #first two are motor pins, last two are encoder pins
 #Motor1.pos() # to read the encoder value for Motor 1
-Motor1 = Motor(14,27,36,39)
-Motor1.pos()
-
-while True:
-    Motor1.pos()
-    time.sleep_ms(1000)
+Motor1 = Motor(14,27,21,22)
+Motor2 = Motor(12,13,26,25)
+    

@@ -55,3 +55,4 @@ Motor1.pos()
 while True:
     Motor1.pos()
     time.sleep_ms(1000)
+    
