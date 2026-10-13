@@ -20,6 +20,8 @@ def put_in_2():
     motor1.duty_u16(DUTY_135)
     motor2.duty_u16(DUTY_45)
     
+motor1.duty_u16(1638)
+motor1.duty_u16(1638)
 
 
 
