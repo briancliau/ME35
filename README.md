@@ -10,3 +10,10 @@
 Highlights:
 * Flashing neopixel LED lights
 * Changing Neopixel LED colors based of a for loop
+
+Get and Post for mate values to affect the angle between the two joints
+
+Connect to wifi 
+Connect to request URL on glasswork with access key 
+copy headers and then do a get 
+    (using quick start from this link: https://onshape-public.github.io/docs/api-intro/quickstart/) 

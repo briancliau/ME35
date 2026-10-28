@@ -50,6 +50,4 @@ button1.irq(trigger=Pin.IRQ_FALLING, handler=weather_handler)
 button2.irq(trigger=Pin.IRQ_FALLING, handler=timer_handler)
 
 while True:
-    set_rgb(128, 60, 0)
-    pwm1.duty_u16(1638)
-    pwm2.duty_u16(8192)    
+    set_rgb(128, 60, 0)   

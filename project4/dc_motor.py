@@ -51,5 +51,22 @@ class Motor(Count):
 #Motor1 = Motor(14,27, 32,39) #first two are motor pins, last two are encoder pins
 #Motor1.pos() # to read the encoder value for Motor 1
 Motor1 = Motor(14,27,21,22)
-Motor2 = Motor(12,13,26,25)
+
+start_encoder_value = Motor1.pos()
+charger_out_value = start_encoder_value + 6000
+
+def charger_out():
+    while (Motor1.pos() != charger_out_value):
+        Motor1.start(0, 50)
+        time.sleep_ms(10)
     
+def charger_in():
+    while (Motor1.pos() != start_encoder_value):
+        Motor1.start(1, 50)
+        time.sleep_ms(10)
+
+while True:
+    charger_out(Motor1)
+    time.sleep_ms(1000)
+    Motor1.start(1, 50)
+    time.sleep_ms(1000)
